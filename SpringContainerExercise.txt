@@ -1,0 +1,217 @@
+Exercise (Spring Container) 
+
+What is the output ? 
+
+Q1:
+
+@Bean
+    public String getMessage1(){
+        System.out.println("hey from message1");
+        return "1";
+    }
+
+ 
+	⁃	It will print the getMessage1() "hey from message1" because it is the only method.
+	⁃	 Store the String “1” in the container .
+
+Output: 
+hey from message1
+
+
+__________
+
+Q2:
+
+@Bean
+@Qualifier("1")
+   public String getMessage1(){
+       System.out.println("hey from message1");
+       return "1";
+   }
+
+   @Bean
+   public String getMessage2(@Qualifier("1") String data){
+       System.out.println("hey from message2");
+       return data;
+   }
+
+	⁃	It will print the “hey from message1” .
+	⁃	 store the  String “1” in the container.
+	⁃	  Print "hey from message2" and store data in the container.
+	⁃	getMessage2(@Qualifier("1") String data) returns the String passed through the @Qualifier annotation, which is the return value of getMessage1() .. “1”.
+
+
+Output: 
+hey from message1
+hey from message2
+
+______
+
+Q3:
+
+
+@Bean
+@Qualifier("1")
+public String getMessage1(){
+    System.out.println("hey from message1");
+    return "1";
+}
+
+@Bean
+@Qualifier("2")
+public String getMessage2(@Qualifier("3") String data){
+    System.out.println("hey from message2");
+    return data;
+}
+
+@Bean
+@Qualifier("3")
+public String getMessage3(){
+    System.out.println("hey from message3");
+    return "3";
+}
+
+
+	⁃	It will print the “hey from message1”.
+	⁃	 store the  String “1” in the container.
+	⁃	Then, it will print getMessage3() “hey from message3" 
+	⁃	 store the  String “3” in the container.
+	⁃	Finally the getMessage2() "hey from message2" will be printed because the annotation @Qualifier("3") is written in the argument so this message will not be printed until the method with @Qualifier("3") is printed.
+
+
+	⁃	- - - - - - - 
+
+
+	⁃	It will print the getMessage3()“hey from message3”.
+	⁃	 store the  String “3” in the container.
+	⁃	Then, it will print getMessage2() “hey from message2” because it has @Qualifier("3") in its argument so it will be printed after the method with @Qualifier("3") is called.
+	⁃	 store the data in the container.
+	⁃	Then prints getMessage1() “hey from message1”.
+
+
+
+Output: 
+hey from message1
+hey from message3
+hey from message2
+
+
+____________
+
+
+Q4:
+
+@Bean
+@Qualifier("1")
+public String getMessage1(){
+    System.out.println("hey from message1");
+    return "1";
+}
+
+@Bean
+@Qualifier("2")
+public String getMessage2(@Qualifier("3") String data){
+    System.out.println("hey from message2");
+    return data;
+}
+
+@Bean
+@Qualifier("3")
+public String getMessage3(){
+    System.out.println("hey from message3");
+    return "3";
+}
+
+@Component
+public class MainController {
+    String data;
+
+    public MainController(@Qualifier("1") String data) {
+        this.data = data;
+        System.out.println("hey from main controller");
+    }
+
+
+	⁃	It will print the getMessage1() “hey from message1” 
+	⁃	 store the  String “1” in the container.
+	⁃	Then it will print MainController "hey from main controller" because the annotation @Qualifier(“1”) is written in the argument so this message will not be printed until the method with @Qualifier(“1”) is printed.
+	⁃	Then, it will print getMessage3() “hey from message3" .
+	⁃	 store the  String “3” in the container.
+	⁃	Finally the getMessage2() "hey from message2" will be printed because the annotation @Qualifier("3") is written in the argument so this message will not be printed until the method with @Qualifier("3") is printed.
+
+	⁃	- - - - - - 
+
+	⁃	It will print the getMessage1() “hey from message1” 
+	⁃	 store the  String “1” in the container.
+	⁃	Then, it will print getMessage3() “hey from message3" .
+	⁃	 store the  String “3” in the container.
+	⁃	 the getMessage2() "hey from message2" 
+	⁃	Then it will print MainController "hey from main controller" because the annotation @Qualifier(“1”) is written in the argument so this message will not be printed until the method with @Qualifier(“1”) is printed.
+
+	⁃	- - - - - -
+
+	⁃	It will print the getMessage3() “hey from message3" .
+	⁃	Then, it will print getMessage2() “hey from message2” because it has @Qualifier("3") in its argument so it will be printed after the method with @Qualifier("3") is called.
+	⁃	It will print the getMessage1() “hey from message1” 
+	⁃	Then it will print MainController "hey from main controller" because the annotation @Qualifier(“1”) is written in the argument so this message will not be printed until the method with @Qualifier(“1”) is printed.
+
+
+
+Output: 
+hey from message1
+hey from main controller
+hey from message3
+hey from message2
+
+
+___________
+
+Q5:
+
+
+@Bean
+@Qualifier("1")
+public String getMessage1(MainController mainController){
+    System.out.println("hey from message1");
+    return "1";
+}
+
+@Bean
+@Qualifier("2")
+public String getMessage2(@Qualifier("3") String data){
+    System.out.println("hey from message2");
+    return data;
+}
+
+@Bean
+@Qualifier("3")
+public String getMessage3(){
+    System.out.println("hey from message3");
+    return "3";
+}
+
+String data;
+public MainController(@Qualifier("2") String data) {
+    this.data = data;
+    System.out.println("hey from main controller");
+}
+
+
+	⁃	It will print getMessage3() "hey from message3"
+	⁃	Then getMessage2() "hey from message2”
+	⁃	Then MainController "hey from main controller"
+	⁃	Finally It will print getMessage1() "hey from message1”.
+
+getMessage1() Requires MainController 
+MainController Requires getMessage2()
+getMessage2() Requiers getMessage3()
+So getMessage3() is printed first because getMessage2() depends on it, after that getMessage2() will be printed with the value of getMessage3() then, MainController "hey from main controller" will be printed with the value of getMessage2()
+Finally getMessage1() "hey from message1” will be printed.
+
+
+Output:
+hey from message3
+hey from message2
+hey from main controller
+hey from message1
+
